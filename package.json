@@ -1,0 +1,34 @@
+{
+  "name": "gotek-chatbot-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "install:all": "npm ci && npm ci --prefix backend && npm ci --prefix frontend",
+    "dev:backend": "npm run --prefix backend dev",
+    "dev:frontend": "npm run --prefix frontend dev",
+    "dev:ai": "uv run --directory ai-service uvicorn main:app --host 0.0.0.0 --port 8000 --reload",
+    "train:ai": "uv run --directory ai-service --with huggingface-hub --with python-dotenv python train_lora.py --epochs 3 --batch-size 2 --push-to-hub",
+    "dev": "npx concurrently -k -p \"[{name}]\" -n \"Backend,Frontend\" -c \"cyan,magenta\" \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "build:all": "npm run --prefix backend build && npm run --prefix frontend build",
+    "test:backend": "npm run --prefix backend test",
+    "test:frontend": "npm run --prefix frontend test",
+    "test:all": "npm run test:backend && npm run test:frontend",
+    "fixture:seed": "npm run --prefix backend fixture:seed",
+    "fixture:reset": "npm run --prefix backend fixture:reset",
+    "db:setup": "npm run --prefix backend db:setup",
+    "db:seed": "npm run --prefix backend db:seed",
+    "db:restore-drill": "npm run --prefix backend db:restore-drill",
+    "worker:ai": "npm run --prefix backend worker:ai",
+    "worker:embedding": "npm run --prefix backend worker:embedding",
+    "worker:web": "npm run --prefix backend worker:web",
+    "prod:up": "docker compose -f docker-compose.prod.yml up -d",
+    "prod:down": "docker compose -f docker-compose.prod.yml down",
+    "prod:logs": "docker compose -f docker-compose.prod.yml logs -f",
+    "dev:meta": "npx concurrently -k -n MetaInbound,MetaOutbound \"META_ENABLE_TEST_SEND=true npm run --prefix backend worker:meta -- --all --ingress-only\" \"META_ENABLE_TEST_SEND=true npm run --prefix backend worker:meta -- --all --dispatch-only\"",
+    "dev:meta-history": "npm run --prefix backend worker:meta-history",
+    "dev:with-meta": "concurrently -k -n App,Meta,MetaHistory \"npm run dev\" \"npm run dev:meta\" \"npm run dev:meta-history\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
